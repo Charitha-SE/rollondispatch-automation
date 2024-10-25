@@ -1,27 +1,23 @@
-class DriverPage{
-    constructor(page){
-        this.page = page;
-        this.driversTab = ".nav-inside a:nth-of-type(5)";
-        this.addNewDriverButton = "//button[normalize-space()='Add New Driver']";
-        this.driveName = "input[name='name']";
-        this.driverPhonenumber = "input[name='phoneNumber']";
-        this.truckingCompanyField = "";
-        this.truckingCompanyInputField = "";
-        this.createNewTruckingCompany = "";
-        this.TruckingCoName = "";
-        this.TruckingCoNumber = "";
-        this.unitNumber = "input[name='unitNumber']";
-        this.trailerNumber = "input[name='trailerNumber']";
-        this.trailerSize = "";
-        this.driverAddress = "input[name='streetAddress']";
-        this.driverCity = "input[name='city']";
-        this.driverState = "(//div[@class=' css-19bb58m'])[6]";
-        this.driveZipCode = "input[name='zipCode']";
-        this.initialLocationTag = "(//div[@class=' css-19bb58m'])[7]";
-        this.driverAppEnable = "input[type='checkbox']";
-        this.ownerOperator = "input[value='OwnerOperator']";
-        this.EmployeeDriver = "input[value='EmployeeDriver']";
-        this.createDriveButton = "button[class='primary-button btn btn-primary']";
-    }
-}
-module.exports = DriverPage;
+const DriverPage = {
+
+    driversTab: "//div//a//span[text()='Drivers']",
+    addNewDriverButton: "//button[text()='Add New Driver']",
+    drivername: "input[placeholder='Enter Driver Name'][name='name']",
+    driverPhoneNumber: "input[name='phoneNumber']",
+    truckingCoNameField: "//label[text()='Trucking Co. Name']//parent::div//div//div//div[@class=' css-19bb58m']//input",
+    truckingCoName: "//input[@placeholder='Enter Trucking Co. Name']",
+    truckingCoNumber: "input[name='truckingCompanyNumber']",
+    saveButton: "//button[text()='Save']",
+    unitNumber: "input[name='unitNumber']",
+    trailerNumber: "input[name='trailerNumber']",
+    trailerSize: "//label[text()='Trailer Size']//parent::div//div//div//div[@class=' css-hlgwow']",
+    driverAddress: "input[name='streetAddress']",
+    driverCity: "input[name='city']",
+    driverZIPCode: "input[name='zipCode']",
+    initialLocationTagField: "//label[text()='Initial Location Tag']//parent::div//div//div//div//div//input",
+    initialLocationTagInput: "#react-select-9-input",
+    createDriverButton: "(//button[text()='Create driver'])[1]",
+    successToaster: "//div[contains(text(),'New Driver Added Successfully')]"
+};
+
+module.exports = { DriverPage };

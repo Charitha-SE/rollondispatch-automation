@@ -57,6 +57,26 @@ class RandomMethod {
         const commodityName = faker.string.alpha(5);
         return commodityName;
     }
+
+    static getWeight() {
+        return faker.number.int({ min: 4500, max: 9000 }).toString();
+    }
+
+    static getUnLoadedWeight() {
+        return faker.number.int({ min: 4500, max: 9000 }).toString();
+    }
+
+    static getUnitNumber() {
+        return faker.string.numeric(3);
+    }
+
+    static getTruckingCompanyName(length = 6) {
+        return Array.from({ length }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
+    }
+
+    static getTruckingCompanyNumber() {
+        return '#' + faker.string.numeric(3);
+    }
     
 
 }

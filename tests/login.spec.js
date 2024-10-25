@@ -1,20 +1,15 @@
-const {test, expect} = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
+const Login = require('../pages/Actions/login');
+const { users } = require('../data/credentials');
 
-const LoginPage = require('../Pages/Actions/login');
-
-test('Login to Application', async ({ page }) => {
-    await page.goto("https://test.com");
-
-    const loginPage = new LoginPage(page);
-
-    await loginPage.loginToApplication();
-
-    try {
-        await expect(page).toHaveURL("/dashboard");
-    } catch (error) {
-        const toasterMessage = await loginPage.getToastMessage();
-        expect(toasterMessage).toContain("Email or Password was incorrect!");
-        console.log("Login failed, toaster message:", toasterMessage);
-    }
+test('Verify the login is successful', async ({ page }) => {
+    const login = new Login(); 
+    await page.goto('/');
+    await page.pause();
+    await login.enterUsername(page, users.login.username);
+    await login.enterPassword(page, users.login.password);
+    await login.clickLoginButton(page);
+    await expect(page).toHaveURL(/.*dashboard/);
+    const welcomeText = page.locator('text=Welcome, Agar Transportation!');
+    await expect(welcomeText).toBeVisible();
 });
-

@@ -1,18 +1,20 @@
 const { test, expect } = require('@playwright/test');
-const CustomerAction = require('../Pages/Actions/customer');
+const Customer = require('../pages/Actions/customer');
+const { login } = require('../helper/auth');
 
-const {login} = require('../helper/loginHelper');
-
-test('Create Customer', async ({ page }) => {
-
-    const customerAction = new CustomerAction(page);
-
+test.beforeEach(async ({ page }) => {
     await login(page);
+  });
 
-    await customerAction.customerCreation();
+test('Verify the customer is created successfully', async ({ page }) => {
+    const customer = new Customer(page); 
 
-    await page.waitForSelector(customerAction.toaster); 
-    const toastMessage = await page.textContent(customerAction.toaster);
+    await customer.customerCreation();
+
+    const createdCustomerName = customer.customerName; 
+    console.log(`Created Customer Name: ${createdCustomerName}`);
+    await page.waitForTimeout(1000);
+
+    const toastMessage = await page.textContent(customer.selectors.toaster);
     expect(toastMessage).toContain('New Customer Added Successfully');
-
 });

@@ -1,27 +1,30 @@
-const BuildShipmentPage = require('../Selectors/buildShpmentPage');
-const DateGenerator = require('../../helper/dateHelper');
+const {BuildShipmentPage} = require('../Selectors/buildShpmentPage');
 const RandomMethod = require('../../helper/randomHelpers');
-const DropDownHandler = require('../../helper/method');
+const PageActions = require('../../helper/pageActions');
 
-class BuildShipment extends BuildShipmentPage {
+class BuildShipment {
     constructor(page) {
-        super(page); 
+        this.page = page;
+        this.selectors = BuildShipmentPage;
+        this.pageActions = new PageActions();
     }
 
-    async shipmentCreation(randomCustomerName) {
+    async navigateToBuildShipment() {
+        await this.pageActions.click(this.page, this.selectors.buildShipment);
+    }
 
-        await this.page.click(this.buildShipment);
-        await this.page.click(this.customerNameField);
-
-        await this.page.fill(this.customerNameInput, randomCustomerName);
-
+    async fillCustomerName(randomCustomerName) {
+        await this.pageActions.click(this.page, this.selectors.customerNameField);
+        await this.pageActions.fill(this.page, this.selectors.customerNameField, randomCustomerName);
         await this.page.waitForTimeout(3000);
         await this.page.getByText(randomCustomerName, { exact: true }).click();
-        
-        await this.page.click(this.pickUp);
+    }
+
+    async setPickupLocation() {
+        await this.pageActions.click(this.page, this.selectors.pickUp);
         await this.page.waitForTimeout(3000);
 
-        const pinDropElement = await this.page.locator(this.pinDrop);
+        const pinDropElement = await this.page.locator(this.selectors.pinDrop);
         const boundingBox = await pinDropElement.boundingBox();
 
         await this.page.mouse.move(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
@@ -30,32 +33,37 @@ class BuildShipment extends BuildShipmentPage {
         await this.page.mouse.up();
 
         await this.page.waitForTimeout(3000);
+        await this.pageActions.click(this.page, this.selectors.useThisLocation);
+    }
 
-        await this.page.click(this.useThisLocation);
-
-        await this.page.click(this.dropOff);
+    async setDropOffLocation() {
+        await this.pageActions.click(this.page, this.selectors.dropOff);
         await this.page.waitForTimeout(3000);
+
+        const pinDropElement = await this.page.locator(this.selectors.pinDrop);
+        const boundingBox = await pinDropElement.boundingBox();
 
         await this.page.mouse.move(boundingBox.x + boundingBox.width / 2, boundingBox.y + boundingBox.height / 2);
         await this.page.mouse.down();
         await this.page.mouse.move(boundingBox.x + boundingBox.width / 4 + 20, boundingBox.y + boundingBox.height / 4 + 20, { steps: 10 });
-        
         await this.page.mouse.up();
 
         await this.page.waitForTimeout(1000);
+        await this.pageActions.click(this.page, this.selectors.useThisLocation);
+    }
 
-        await this.page.click(this.useThisLocation);
-        await this.page.click(this.SaveAndContinue);
+    async saveAndContinue() {
+        await this.pageActions.click(this.page, this.selectors.saveAndContinue);
+    }
 
-        await this.page.waitForSelector(this.StartDate, { state: 'visible' });
-        
-        await this.page.locator(this.StartDate).first().click();
+    async fillDates() {
+        await this.page.waitForSelector(this.selectors.startDate, { state: 'visible' });
+        await this.page.locator(this.selectors.startDate).first().click();
         await this.page.waitForSelector('.react-datepicker', { state: 'visible' });
         await this.page.locator('.react-datepicker__day--today').click();
 
-
-        await this.page.waitForSelector(this.EndDate, { state: 'visible' });
-        await this.page.locator(this.EndDate).nth(1).click();
+        await this.page.waitForSelector(this.selectors.endDate, { state: 'visible' });
+        await this.page.locator(this.selectors.endDate).nth(1).click();
         await this.page.waitForSelector('.react-datepicker', { state: 'visible' });
 
         const today = new Date();
@@ -64,29 +72,79 @@ class BuildShipment extends BuildShipmentPage {
         const futureDay = futureDate.getDate();
         const daySelector = `//div[contains(@class, 'react-datepicker__day') and text()="${futureDay}"]`;
         await this.page.locator(daySelector).click();
-
-
-        await this.page.fill(this.weightLbs, "9000");
-        await this.page.fill(this.unloadedWeight, "98500");
-        await this.page.fill(this.numberOfLoads, "2");
-        await this.page.fill(this.trucksNeeded, "1");
-        await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        
-
-        const dropDownHandler = new DropDownHandler(this.page);
-        await dropDownHandler.createCommodity();
-        
-        
-        await dropDownHandler.selectRateType("Per CWT"); 
-        await this.page.check(this.addLocationsCheckbox);
-
-        const rateUSD = RandomMethod.getRate();
-        // await this.page.fill(this.rate, rateUSD);
-        await this.page.click(this.buildShipmentButton);
-        await this.page.waitForSelector(this.buildShipmentToaster);
-        // await this.page.pause();
-        
     }
-};
+
+    async fillWeight() {
+        const weight = RandomMethod.getWeight();
+        await this.pageActions.fill(this.page, this.selectors.weightLbs, weight);
+    }
+
+    async fillUnloadedWeight() {
+        const unLoadedWeight = RandomMethod.getUnLoadedWeight();
+        await this.pageActions.fill(this.page, this.selectors.unloadedWeight, unLoadedWeight);
+    }
+
+    async fillShipmentDetails() {
+        await this.pageActions.fill(this.page, this.selectors.numberOfLoads, "1");
+        await this.pageActions.fill(this.page, this.selectors.trucksNeeded, "1");
+        await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    }
+
+    async createCommodity() {
+        await this.pageActions.click(this.page, this.selectors.commodityField);
+        await this.pageActions.fill(this.page, this.selectors.commodityField, "Create");
+
+        await this.page.getByText('Create New Commodity', { exact: true }).click();
+
+        const randomCommodityName = RandomMethod.getCommodityName();
+
+        await this.pageActions.fill(this.page, this.selectors.commodityName, randomCommodityName);
+
+        await this.pageActions.click(this.page, this.selectors.saveCommodity);
+    }
+
+    async checkAddLocationsCheckbox() {
+        await this.pageActions.check(this.page, this.selectors.addLocationsCheckbox);
+    }
+
+    async selectRateType(rateType) {
+        await this.pageActions.click(this.page, this.selectors.rateType);
+        await this.page.getByText(rateType, { exact: true }).click();
+    }
+
+    async clickBuildShpmentButton(){
+        await this.pageActions.click(this.page, this.selectors.buildShipmentButton);
+    }
+
+    async waitForToaster() {
+        await this.page.waitForSelector(this.selectors.buildShipmentToaster);
+    }
+
+    async goToLoadBoard(){
+        await this.pageActions.click(this.page, this.selectors.goToLoadBoradButton);
+    }
+
+    async createShipment(randomCustomerName) {
+        await this.navigateToBuildShipment();
+        await this.fillCustomerName(randomCustomerName);
+        await this.setPickupLocation();
+        await this.setDropOffLocation();
+        await this.saveAndContinue();
+    }
+
+    async shipmentDetails() {
+        await this.fillDates();
+        await this.fillWeight();
+        await this.fillUnloadedWeight();
+        await this.fillShipmentDetails();
+        await this.createCommodity();
+        await this.checkAddLocationsCheckbox();
+        await this.selectRateType("Per CWT");
+        await this.pageActions.scrollToBottom(this.page);
+        await this.clickBuildShpmentButton();
+        await this.waitForToaster();
+        await this.goToLoadBoard();
+    }
+}
 
 module.exports = BuildShipment;

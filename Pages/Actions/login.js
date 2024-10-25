@@ -1,24 +1,26 @@
-const LoginSelectors = require('../Selectors/loginPage');
+const { LoginSelectors } = require('../Selectors/loginPage');
+const PageActions = require('../../helper/pageActions');
 
-class LoginPage extends LoginSelectors {
-    constructor(page) {
-        super();
-        this.page = page;
+class Login {
+    constructor() {
+        this.pageActions = new PageActions();
     }
 
-    async loginToApplication() {
-        const userName = "xxxxxxxxxxx";
-        const password = "xxxxxxxxx";
-        await this.page.fill(this.username, userName);
-        await this.page.fill(this.password, password);
-        await this.page.click(this.loginbutton);
+    async enterUsername(page, username) {
+        await this.pageActions.fill(page, LoginSelectors.username, username);
     }
 
-    async getToastMessage() {
-        const toaster = this.page.locator(this.toaster);
-        const textContent = await toaster.textContent();
-        return textContent;
+    async enterPassword(page, password) {
+        await this.pageActions.fill(page, LoginSelectors.password, password);
+    }
+
+    async clickLoginButton(page) {
+        await this.pageActions.click(page, LoginSelectors.loginButton);
+    }
+
+    async getToasterMessage(page) {
+        return await page.textContent(LoginSelectors.toaster);
     }
 }
 
-module.exports = LoginPage;
+module.exports = Login;
